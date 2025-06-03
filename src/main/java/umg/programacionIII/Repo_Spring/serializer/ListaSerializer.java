@@ -1,4 +1,4 @@
-package umg.programacionIII.Repo_Spring.config;
+package umg.programacionIII.Repo_Spring.serializer;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
@@ -8,8 +8,6 @@ import umg.programacionIII.estructuras.lista.Lista;
 import umg.programacionIII.estructuras.lista.Nodo;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 @JsonComponent
 public class ListaSerializer extends JsonSerializer<Lista<?>> {

@@ -40,8 +40,13 @@ public class TareaController {
     }
 
     @PostMapping
-    public Tarea guardar(@RequestBody Tarea tarea) {
-        return tareaService.save(tarea);
+    public ResponseEntity<?> guardar(@RequestBody Tarea tarea) {
+        if (tarea.getDescripcion() == null || tarea.getDescripcion().trim().isEmpty()) {
+            return ResponseEntity
+                    .badRequest()
+                    .body("La descripción de la tarea no puede estar vacía");
+        }
+        return ResponseEntity.ok(tareaService.save(tarea));
     }
 
     @DeleteMapping("/{id}")
