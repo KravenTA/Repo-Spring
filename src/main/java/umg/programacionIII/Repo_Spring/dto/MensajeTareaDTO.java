@@ -7,6 +7,9 @@ public class MensajeTareaDTO {
     private Tarea tarea;
     private Long id;
     private int idMensaje;
+    private boolean registrarHistorial;
+    private String accionHistorial;
+    private Long usuarioId;
 
     // Constructores
     public MensajeTareaDTO() {}
@@ -25,7 +28,7 @@ public class MensajeTareaDTO {
         this.idMensaje = idMensaje;
     }
 
-    // Getters y setters
+    // Getters y setters existentes
     public String getOperacion() {
         return operacion;
     }
@@ -56,5 +59,30 @@ public class MensajeTareaDTO {
 
     public void setIdMensaje(int idMensaje) {
         this.idMensaje = idMensaje;
+    }
+
+    // Nuevos getters y setters para historial
+    public boolean isRegistrarHistorial() {
+        return registrarHistorial;
+    }
+
+    public void setRegistrarHistorial(boolean registrarHistorial) {
+        this.registrarHistorial = registrarHistorial;
+    }
+
+    public String getAccionHistorial() {
+        return accionHistorial;
+    }
+
+    public void setAccionHistorial(String accionHistorial) {
+        this.accionHistorial = accionHistorial;
+    }
+
+    public Long getUsuarioId() {
+        return usuarioId;
+    }
+
+    public void setUsuarioId(Long usuarioId) {
+        this.usuarioId = usuarioId;
     }
 }

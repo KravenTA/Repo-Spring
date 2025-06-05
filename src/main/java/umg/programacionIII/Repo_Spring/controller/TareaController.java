@@ -67,7 +67,10 @@ public class TareaController {
         }
 
         int idMensaje = messageCounter.incrementAndGet();
+        // Incluimos información para el historial
         MensajeTareaDTO mensaje = new MensajeTareaDTO("CREAR", tarea, idMensaje);
+        mensaje.setRegistrarHistorial(true);
+        mensaje.setAccionHistorial("Creación de tarea: " + tarea.getDescripcion());
 
         logger.info("Enviando mensaje para crear tarea: {}", mensaje);
 
@@ -91,7 +94,10 @@ public class TareaController {
 
         tarea.setId(id);
         int idMensaje = messageCounter.incrementAndGet();
+        // Incluimos información para el historial
         MensajeTareaDTO mensaje = new MensajeTareaDTO("ACTUALIZAR", tarea, idMensaje);
+        mensaje.setRegistrarHistorial(true);
+        mensaje.setAccionHistorial("Actualización de tarea: " + tarea.getDescripcion());
 
         logger.info("Enviando mensaje para actualizar tarea: {}", mensaje);
 
@@ -102,8 +108,16 @@ public class TareaController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> eliminar(@PathVariable Long id) {
+        // Obtenemos la tarea antes de eliminarla para registrar su descripción
+        Opcional<Tarea> tareaOpcional = tareaService.findById(id);
+        String descripcionTarea = tareaOpcional.estaPresente() ?
+                tareaOpcional.obtener().getDescripcion() : "desconocida";
+
         int idMensaje = messageCounter.incrementAndGet();
+        // Incluimos información para el historial
         MensajeTareaDTO mensaje = new MensajeTareaDTO("ELIMINAR", id, idMensaje);
+        mensaje.setRegistrarHistorial(true);
+        mensaje.setAccionHistorial("Eliminación de tarea: " + descripcionTarea);
 
         logger.info("Enviando mensaje para eliminar tarea: {}", mensaje);
 
