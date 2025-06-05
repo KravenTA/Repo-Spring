@@ -1,5 +1,7 @@
 package umg.programacionIII.Repo_Spring.controller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -7,17 +9,21 @@ import umg.programacionIII.model.Tarea;
 import umg.programacionIII.service.TareaService;
 import umg.programacionIII.estructuras.lista.Lista;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.amqp.core.MessageProperties;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @RestController
 @RequestMapping("/api/tareas")
 public class TareaController {
 
+    private static final Logger logger = LoggerFactory.getLogger(TareaController.class);
     private final TareaService tareaService;
     private final RabbitTemplate rabbitTemplate;
+    private final AtomicInteger messageCounter = new AtomicInteger(0);
 
     @Value("${rabbitmq.exchange}")
     private String exchange;
@@ -62,10 +68,18 @@ public class TareaController {
         Map<String, Object> mensaje = new HashMap<>();
         mensaje.put("operacion", "CREAR");
         mensaje.put("tarea", tarea);
+        mensaje.put("id_mensaje", messageCounter.incrementAndGet());
 
-        rabbitTemplate.convertAndSend(exchange, routingKey, mensaje);
+        logger.info("Enviando mensaje para crear tarea: {}", mensaje);
 
-        return ResponseEntity.ok().body("Tarea enviada para procesamiento");
+        // Enviamos el mensaje con una prioridad media (5)
+        rabbitTemplate.convertAndSend(exchange, routingKey, mensaje, message -> {
+            MessageProperties props = message.getMessageProperties();
+            props.setPriority(5);
+            return message;
+        });
+
+        return ResponseEntity.ok().body("Tarea enviada para procesamiento con ID: " + messageCounter.get());
     }
 
     @PutMapping("/{id}")
@@ -80,20 +94,26 @@ public class TareaController {
         Map<String, Object> mensaje = new HashMap<>();
         mensaje.put("operacion", "ACTUALIZAR");
         mensaje.put("tarea", tarea);
+        mensaje.put("id_mensaje", messageCounter.incrementAndGet());
+
+        logger.info("Enviando mensaje para actualizar tarea: {}", mensaje);
 
         rabbitTemplate.convertAndSend(exchange, routingKey, mensaje);
 
-        return ResponseEntity.ok().body("Tarea enviada para actualización");
+        return ResponseEntity.ok().body("Tarea enviada para actualización con ID: " + messageCounter.get());
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminar(@PathVariable Long id) {
+    public ResponseEntity<String> eliminar(@PathVariable Long id) {
         Map<String, Object> mensaje = new HashMap<>();
         mensaje.put("operacion", "ELIMINAR");
         mensaje.put("id", id);
+        mensaje.put("id_mensaje", messageCounter.incrementAndGet());
+
+        logger.info("Enviando mensaje para eliminar tarea: {}", mensaje);
 
         rabbitTemplate.convertAndSend(exchange, routingKey, mensaje);
 
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok("Operación de eliminación enviada con ID: " + messageCounter.get());
     }
 }

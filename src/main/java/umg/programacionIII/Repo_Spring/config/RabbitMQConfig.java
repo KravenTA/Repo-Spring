@@ -23,12 +23,15 @@ public class RabbitMQConfig {
 
     @Bean
     public Queue queue() {
-        return new Queue(queueName, true);
+        return QueueBuilder.durable(queueName)
+                .withArgument("x-message-ttl", 300000) // 5 minutos de TTL
+                .withArgument("x-max-priority", 10)
+                .build();
     }
 
     @Bean
     public DirectExchange exchange() {
-        return new DirectExchange(exchange);
+        return new DirectExchange(exchange, true, false);
     }
 
     @Bean
@@ -45,6 +48,15 @@ public class RabbitMQConfig {
     public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory) {
         RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
         rabbitTemplate.setMessageConverter(jsonMessageConverter());
+
+        // Configurar la persistencia de mensajes
+        rabbitTemplate.setMandatory(true);
+        rabbitTemplate.setConfirmCallback((correlationData, ack, cause) -> {
+            if (!ack) {
+                System.err.println("No se pudo entregar el mensaje: " + cause);
+            }
+        });
+
         return rabbitTemplate;
     }
 }
