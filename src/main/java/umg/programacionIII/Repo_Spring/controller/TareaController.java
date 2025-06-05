@@ -10,10 +10,9 @@ import umg.programacionIII.service.TareaService;
 import umg.programacionIII.estructuras.lista.Lista;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.amqp.core.MessageProperties;
+import umg.programacionIII.estructuras.lista.Opcional;
+import umg.programacionIII.Repo_Spring.dto.MensajeTareaDTO;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @RestController
@@ -43,8 +42,10 @@ public class TareaController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Tarea> obtenerPorId(@PathVariable Long id) {
-        Optional<Tarea> tarea = tareaService.findById(id);
-        return tarea.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        Opcional<Tarea> tarea = tareaService.findById(id);
+        return tarea.estaPresente() ?
+                ResponseEntity.ok(tarea.obtener()) :
+                ResponseEntity.notFound().build();
     }
 
     @GetMapping("/usuario/{usuarioId}")
@@ -65,10 +66,8 @@ public class TareaController {
                     .body("La descripción de la tarea no puede estar vacía");
         }
 
-        Map<String, Object> mensaje = new HashMap<>();
-        mensaje.put("operacion", "CREAR");
-        mensaje.put("tarea", tarea);
-        mensaje.put("id_mensaje", messageCounter.incrementAndGet());
+        int idMensaje = messageCounter.incrementAndGet();
+        MensajeTareaDTO mensaje = new MensajeTareaDTO("CREAR", tarea, idMensaje);
 
         logger.info("Enviando mensaje para crear tarea: {}", mensaje);
 
@@ -79,7 +78,7 @@ public class TareaController {
             return message;
         });
 
-        return ResponseEntity.ok().body("Tarea enviada para procesamiento con ID: " + messageCounter.get());
+        return ResponseEntity.ok().body("Tarea enviada para procesamiento con ID: " + idMensaje);
     }
 
     @PutMapping("/{id}")
@@ -91,29 +90,25 @@ public class TareaController {
         }
 
         tarea.setId(id);
-        Map<String, Object> mensaje = new HashMap<>();
-        mensaje.put("operacion", "ACTUALIZAR");
-        mensaje.put("tarea", tarea);
-        mensaje.put("id_mensaje", messageCounter.incrementAndGet());
+        int idMensaje = messageCounter.incrementAndGet();
+        MensajeTareaDTO mensaje = new MensajeTareaDTO("ACTUALIZAR", tarea, idMensaje);
 
         logger.info("Enviando mensaje para actualizar tarea: {}", mensaje);
 
         rabbitTemplate.convertAndSend(exchange, routingKey, mensaje);
 
-        return ResponseEntity.ok().body("Tarea enviada para actualización con ID: " + messageCounter.get());
+        return ResponseEntity.ok().body("Tarea enviada para actualización con ID: " + idMensaje);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> eliminar(@PathVariable Long id) {
-        Map<String, Object> mensaje = new HashMap<>();
-        mensaje.put("operacion", "ELIMINAR");
-        mensaje.put("id", id);
-        mensaje.put("id_mensaje", messageCounter.incrementAndGet());
+        int idMensaje = messageCounter.incrementAndGet();
+        MensajeTareaDTO mensaje = new MensajeTareaDTO("ELIMINAR", id, idMensaje);
 
         logger.info("Enviando mensaje para eliminar tarea: {}", mensaje);
 
         rabbitTemplate.convertAndSend(exchange, routingKey, mensaje);
 
-        return ResponseEntity.ok("Operación de eliminación enviada con ID: " + messageCounter.get());
+        return ResponseEntity.ok("Operación de eliminación enviada con ID: " + idMensaje);
     }
 }
