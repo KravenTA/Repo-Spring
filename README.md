@@ -20,8 +20,19 @@
 ---
 
 ## 📁 Estructura del Proyecto
-src/main/java/umg/programacionIII/ 
-├── Repo_Spring/ │ ├── controller/ # TareaController, HistorialController, UsuarioController │ ├── consumer/ # TareaConsumer para mensajes RabbitMQ │ ├── config/ # RabbitMQConfig, SwaggerConfig │ ├── dto/ # MensajeTareaDTO │ ├── serializer/ # ListaSerializer │ └── RepoSpringApplication.java ├── model/ # Tarea, Historial, Usuario ├── service/ # TareaService, HistorialService, UsuarioService ├── repository/ # Interfaces para acceso a datos └── estructuras/lista/ # Lista.java, Nodo.java, Opcional.java (estructuras personalizadas)
+
+src/main/java/umg/programacionIII/
+├── Repo_Spring/
+│   ├── controller/          # TareaController, HistorialController, UsuarioController
+│   ├── consumer/            # TareaConsumer para mensajes RabbitMQ
+│   ├── config/              # RabbitMQConfig, SwaggerConfig
+│   ├── dto/                 # MensajeTareaDTO
+│   ├── serializer/          # ListaSerializer
+│   └── RepoSpringApplication.java
+├── model/                   # Tarea, Historial, Usuario
+├── service/                 # TareaService, HistorialService, UsuarioService
+├── repository/              # Interfaces para acceso a datos
+└── estructuras/lista/       # Lista.java, Nodo.java, Opcional.java (estructuras personalizadas)
 
 ---
 
