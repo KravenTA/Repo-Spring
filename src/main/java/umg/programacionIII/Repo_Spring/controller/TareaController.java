@@ -72,6 +72,11 @@ public class TareaController {
         mensaje.setRegistrarHistorial(true);
         mensaje.setAccionHistorial("Creación de tarea: " + tarea.getDescripcion());
 
+        // Guardamos el ID del usuario si está presente
+        if (tarea.getUsuario() != null && tarea.getUsuario().getId() != null) {
+            mensaje.setUsuarioId(tarea.getUsuario().getId());
+        }
+
         logger.info("Enviando mensaje para crear tarea: {}", mensaje);
 
         // Enviamos el mensaje con una prioridad media (5)
@@ -98,6 +103,11 @@ public class TareaController {
         MensajeTareaDTO mensaje = new MensajeTareaDTO("ACTUALIZAR", tarea, idMensaje);
         mensaje.setRegistrarHistorial(true);
         mensaje.setAccionHistorial("Actualización de tarea: " + tarea.getDescripcion());
+
+        // Guardamos el ID del usuario si está presente
+        if (tarea.getUsuario() != null && tarea.getUsuario().getId() != null) {
+            mensaje.setUsuarioId(tarea.getUsuario().getId());
+        }
 
         logger.info("Enviando mensaje para actualizar tarea: {}", mensaje);
 

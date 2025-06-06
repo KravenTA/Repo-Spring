@@ -44,16 +44,24 @@ public class TareaConsumer {
             }
 
             String operacion = mensaje.getOperacion();
-            Long usuarioId = null;
+            Long usuarioId = mensaje.getUsuarioId(); // Obtener el usuarioId directamente del mensaje;
 
             switch (operacion) {
                 case "CREAR":
                 case "ACTUALIZAR":
                     Tarea tarea = mensaje.getTarea();
                     logger.info("Procesando tarea: {}", tarea);
-                    if (tarea.getUsuario() != null) {
+
+                    // Si el usuarioId viene en el mensaje pero no en la tarea, asignarlo
+                    if (usuarioId != null && (tarea.getUsuario() == null || tarea.getUsuario().getId() == null)) {
+                        Usuario usuario = new Usuario();
+                        usuario.setId(usuarioId);
+                        tarea.setUsuario(usuario);
+                        logger.info("Asignando usuario con ID {} a la tarea", usuarioId);
+                    } else if (tarea.getUsuario() != null) {
                         usuarioId = tarea.getUsuario().getId();
                     }
+
                     tareaService.save(tarea);
                     break;
 
