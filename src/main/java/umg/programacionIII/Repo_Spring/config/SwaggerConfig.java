@@ -27,8 +27,8 @@ public class SwaggerConfig {
                         .version("v1.0")
                         .contact(new Contact()
                                 .name("UMG")
-                                .email("contacto@ejemplo.com")
-                                .url("https://www.ejemplo.com"))
+                                .email("ythommela@miumg.edu.gt")
+                                .url("https://github.com/KravenTA/Repo-Spring.git"))
                         .license(new License()
                                 .name("Apache 2.0")
                                 .url("http://www.apache.org/licenses/LICENSE-2.0.html")));
